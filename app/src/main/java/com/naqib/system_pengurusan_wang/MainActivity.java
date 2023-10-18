@@ -6,10 +6,12 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.room.Room;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,8 +20,12 @@ public class MainActivity extends AppCompatActivity {
     private EditText amountEditText;
     private CheckBox incomeCheckBox;
     private ListView transactionList;
+    private TextView balanceTextView;
+
     private ArrayList<String> transactions;
-    private ArrayAdapter<String> transactionAdapter;
+    private CustomListAdapter transactionAdapter;
+    private double balance = 0.0;
+
     private AppDatabase database;
 
     @Override
@@ -31,9 +37,10 @@ public class MainActivity extends AppCompatActivity {
         amountEditText = findViewById(R.id.amountEditText);
         incomeCheckBox = findViewById(R.id.incomeCheckBox);
         transactionList = findViewById(R.id.transactionList);
+        balanceTextView = findViewById(R.id.balanceTextView);
 
         transactions = new ArrayList<>();
-        transactionAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, transactions);
+        transactionAdapter = new CustomListAdapter(this, R.layout.list_item, transactions);
         transactionList.setAdapter(transactionAdapter);
 
         database = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "finance-db").allowMainThreadQueries().build();
@@ -51,20 +58,44 @@ public class MainActivity extends AppCompatActivity {
             Transaction transaction = new Transaction(description, amount, isIncome);
             database.transactionDao().insert(transaction);
 
-            transactions.add(transaction.getDescription() + ": RM" + transaction.getAmount() + " (" + (isIncome ? "Income" : "Expense") + ")");
+            // Format the amount with two decimal places using DecimalFormat
+            DecimalFormat decimalFormat = new DecimalFormat("#0.00");
+            String formattedAmount = decimalFormat.format(transaction.getAmount());
+
+            transactions.add(transaction.getDescription() + ": RM" + formattedAmount + " (" + (isIncome ? "Income" : "Expense") + ")");
             transactionAdapter.notifyDataSetChanged();
 
             descriptionEditText.setText("");
             amountEditText.setText("");
             incomeCheckBox.setChecked(false);
+
+            // Update the balance
+            if (isIncome) {
+                balance += amount;
+            } else {
+                balance -= amount;
+            }
+
+            updateBalanceView();
         }
     }
 
     private void loadTransactionsFromDatabase() {
         List<Transaction> transactionList = database.transactionDao().getAllTransactions();
+        balance = 0.0;
+
         for (Transaction transaction : transactionList) {
-            transactions.add(transaction.getDescription() + ": RM" + transaction.getAmount() + " (" + (transaction.isIncome() ? "Income" : "Expense") + ")");
+            double transactionAmount = transaction.isIncome() ? transaction.getAmount() : -transaction.getAmount();
+            balance += transactionAmount;
+
+            transactions.add(transaction.getDescription() + ": RM" + String.format("%.2f", transaction.getAmount()) + " (" + (transaction.isIncome() ? "Income" : "Expense") + ")");
         }
+
         transactionAdapter.notifyDataSetChanged();
+        updateBalanceView();
+    }
+
+    private void updateBalanceView() {
+        balanceTextView.setText("Balance: RM" + String.format("%.2f", balance));
     }
 }

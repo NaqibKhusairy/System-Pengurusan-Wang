@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@drawable/bg"
     android:padding="16dp"
     tools:context=".MainActivity">
 
@@ -13,29 +14,50 @@
         android:id="@+id/descriptionEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Description"/>
+        android:hint="Description"
+        android:textColorHint="@android:color/white"
+        android:textColor="@android:color/white" />
 
     <EditText
         android:id="@+id/amountEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Amount"
-        android:inputType="numberDecimal"/>
+        android:inputType="numberDecimal"
+        android:textColorHint="@android:color/white"
+        android:textColor="@android:color/white" />
 
     <CheckBox
         android:id="@+id/incomeCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Income"/>
+        android:text="Income"
+        android:textColor="@android:color/white" />
 
     <Button
+        android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="addTransaction"
         android:text="Add Transaction"
-        android:onClick="addTransaction"/>
+        android:textColor="@android:color/white"
+        android:backgroundTint="#5B013C17"/>
 
     <ListView
         android:id="@+id/transactionList"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical"
+        android:background="#6D1D3706" />
+
+    <TextView
+        android:id="@+id/balanceTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Balance: RM0"
+        android:textSize="18sp"
+        android:layout_gravity="center_horizontal"
+        android:background="#6D2C5C02"
+        android:textColor="@android:color/white" />
 </LinearLayout>
